@@ -30,14 +30,14 @@ def predict(ID_CLIENT) :
       # Tester le modèle sur ce ID_CLIENT
       prediction = loaded_model.predict(client_data)
       prediction = prediction.tolist()[0]
+      prediction_proba = loaded_model.predict_porba(client_data)
+      prediction_proba = prediction_proba.tolist()[0]
       # Afficher la prédiction
-      return {'prediction': prediction}
+      return {'prediction': prediction,
+              'prediction_proba': prediction_proba}
    else:
       return 'Manquant'
    
-
-
-print(predict(232250))
 
 if __name__ == "__main__":
    uvicorn.run("Prediction_api:app", host="127.0.0.1", port=8000, reload=True)
