@@ -28,13 +28,10 @@ def predict(ID_CLIENT) :
       client_data = df_api.loc[ID_CLIENT].values.reshape(1, -1)
       
       # Tester le modèle sur ce ID_CLIENT
-      prediction = loaded_model.predict(client_data)
-      prediction = prediction.tolist()[0]
-      prediction_proba = loaded_model.predict_porba(client_data)
-      prediction_proba = prediction_proba.tolist()[0]
+      prediction = loaded_model.predict_proba(client_data)
+      prediction = prediction[0][1]
       # Afficher la prédiction
-      return {'prediction': prediction,
-              'prediction_proba': prediction_proba}
+      return {'prediction': prediction}
    else:
       return 'Manquant'
    
