@@ -18,6 +18,12 @@ app = FastAPI()
 def great():
    return {"message":"Bonjour"}
 
+# Endpoint pour récupérer les ID_CLIENT
+@app.get("/CLIENTS")
+def Liste_client():
+    # Renvoie tous les ID_CLIENT disponibles dans le DataFrame
+    ID_CLIENT = sorted(df_api.index.tolist())
+    return {"ID_CLIENT": ID_CLIENT}
 
 @app.get("/predict")
 def predict(ID_CLIENT) :
