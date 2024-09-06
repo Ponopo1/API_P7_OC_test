@@ -13,3 +13,6 @@ streamviz==5.1
 uvicorn==0.30.6
 xgboost==2.1.1
 scikit-learn==1.5.1
+numba==0.57.0
+llvmlite==0.40.0
+
