@@ -3,6 +3,7 @@ from fastapi import FastAPI
 import pandas as pd
 import joblib
 from pydantic import BaseModel
+import shap
 
 # Import model 
 loaded_model = joblib.load('./best_Random Forest_2024-07-26.joblib')
@@ -11,6 +12,11 @@ loaded_model = joblib.load('./best_Random Forest_2024-07-26.joblib')
 csv_path = './X_test.csv'
 df_api= pd.read_csv(csv_path, index_col="ID_CLIENT")
 df_api.index = df_api.index.astype(int)
+
+# Base_client import
+csv_path_base_client = './Base_client.csv'
+Base_client= pd.read_csv(csv_path_base_client, index_col='Unnamed: 0')
+Base_client.index = Base_client.index.astype(int)
 
 # Instance API
 app = FastAPI()
@@ -24,6 +30,11 @@ def Liste_client():
     # Renvoie tous les ID_CLIENT disponibles dans le DataFrame
     ID_CLIENT = sorted(df_api.index.tolist())
     return {"ID_CLIENT": ID_CLIENT}
+
+@app.get("/INFO_CLIENTS")
+def info_client(ID_CLIENT):
+   INFO_CLIENT = Base_client.loc[[ID_CLIENT]]
+   return {"ID_CLIENT": INFO_CLIENT}
 
 @app.get("/predict")
 def predict(ID_CLIENT) :
@@ -40,7 +51,15 @@ def predict(ID_CLIENT) :
       return {'prediction': prediction}
    else:
       return 'Manquant'
-   
+  
+@app.get("/SHAP")
+def valeur_shap(ID_CLIENT):
+   data_client = df_api.loc[[ID_CLIENT]]
+   # Calcul des valeurs SHAP pour ce client
+   # Créer l'explainer SHAP avec TreeExplainer
+   explainer = shap.Explainer(loaded_model,data_client)
+   shap_values = explainer.shap_values(data_client,check_additivity=False )
+   return {'shap_values' : shap_values}
 
 if __name__ == "__main__":
    uvicorn.run("Prediction_api:app", host="127.0.0.1", port=8000, reload=True)
