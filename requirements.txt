@@ -5,7 +5,6 @@ pandas==2.2.2
 Pillow==10.4.0
 Plost==0.2.5
 plotly==5.23.0
-pydantic==2.9.0
 Requests==2.32.3
 shap==0.46.0
 streamlit==1.19.0
@@ -13,6 +12,5 @@ streamviz==5.1
 uvicorn==0.30.6
 xgboost==2.1.1
 scikit-learn==1.5.1
-numba==0.57.0
-llvmlite==0.40.0
+
 
