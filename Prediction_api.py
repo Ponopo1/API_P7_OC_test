@@ -30,9 +30,10 @@ def Liste_client():
     return {"ID_CLIENT": ID_CLIENT}
 
 @app.get("/INFO_CLIENTS")
-def info_client(ID_CLIENT):
+def info_client(ID_CLIENT: int):
    INFO_CLIENT = Base_client.loc[[ID_CLIENT]]
-   return {INFO_CLIENT}
+   INFO_CLIENT_dict = INFO_CLIENT.to_dict()
+   return INFO_CLIENT_dict
 
 @app.get("/predict")
 def predict(ID_CLIENT) :
