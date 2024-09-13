@@ -62,7 +62,11 @@ def shap_global() :
    # Le téléchargement des shap c'est fait sur une base réduite pour la taille des données
    # Possibilité d'intégrer une image à la place mais modification max_display impossible
    
-   return shap_values_class_1_global, df_api, df_api.columns
+   return {
+        'shap_values_class_1_global': shap_values_class_1_global.tolist(),  # Conversion en liste JSON-compatible
+        'df_api': df_api.to_dict(orient="records"),  # Conversion du DataFrame en dict
+        'df_api_columns': df_api.columns.tolist()  # Conversion des colonnes en liste
+    }
 
 @app.get("/shap_individual")
 def shap_individual(ID_CLIENT) :
@@ -73,7 +77,11 @@ def shap_individual(ID_CLIENT) :
    # Select SHAP values for the first output 
    shap_values_class_1_ind = shap_values_ind[..., 1] 
 
-   return shap_values_class_1_ind, observation, observation.columns
+   return {
+        "shap_values_class_1": shap_values_class_1_ind.tolist(),
+        "observation": observation.to_dict(orient="records"),
+        "columns": observation.columns.tolist()
+    }
   
 if __name__ == "__main__":
    uvicorn.run("Prediction_api:app", host="127.0.0.1", port=8000, reload=True)
