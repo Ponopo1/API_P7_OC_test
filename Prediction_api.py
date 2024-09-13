@@ -69,7 +69,7 @@ def shap_global() :
     }
 
 @app.get("/shap_individual")
-def shap_individual(ID_CLIENT) :
+def shap_individual(ID_CLIENT :int) :
    # Selection personne
    observation = df_api.loc[[ID_CLIENT]]
    observation_dict = observation.to_dict()
