@@ -78,9 +78,9 @@ def shap_individual(ID_CLIENT) :
    shap_values_class_1_ind = shap_values_ind[..., 1] 
 
    return {
-        "shap_values_class_1": shap_values_class_1_ind.tolist(),
-        "observation": observation.to_dict(orient="records"),
-        "columns": observation.columns.tolist()
+        "shap_values_class_1": shap_values_class_1_ind,
+        "observation": observation,
+        "columns": observation.columns
     }
   
 if __name__ == "__main__":
