@@ -72,16 +72,17 @@ def shap_global() :
 def shap_individual(ID_CLIENT) :
    # Selection personne
    observation = df_api.loc[[ID_CLIENT]]
+   observation_dict = observation.to_dict()
+   observation_list = observation.columns.tolist()
    # Shap_values individue
    shap_values_ind = explainer.shap_values(observation)
    # Select SHAP values for the first output 
    shap_values_class_1_ind = shap_values_ind[..., 1] 
-
+   shap_values_class_1_ind_list = shap_values_class_1_ind.tolist()
    return {
-        "shap_values_class_1": shap_values_class_1_ind,
-        "observation": observation,
-        "columns": observation.columns
-    }
+        "shap_values_class_1": shap_values_class_1_ind_list,
+        "observation": observation_dict,
+        "columns": observation_list}
   
 if __name__ == "__main__":
    uvicorn.run("Prediction_api:app", host="127.0.0.1", port=8000, reload=True)
