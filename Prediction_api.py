@@ -19,7 +19,6 @@ Base_client= pd.read_csv(csv_path_base_client, index_col='Unnamed: 0')
 Base_client.index = Base_client.index.astype(int)
 
 explainer = shap.TreeExplainer(loaded_model)
-shap_values = explainer.shap_values(df_api)
 
 # Instance API
 app = FastAPI()
