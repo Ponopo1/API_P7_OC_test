@@ -2,9 +2,11 @@ import uvicorn
 from fastapi import FastAPI
 import pandas as pd
 import joblib
+import shap
 
 # Import model 
 loaded_model = joblib.load('./best_Random Forest_2024-07-26.joblib')
+shap_values_global = joblib.load('./SHAP/shap_values.joblib')
 
 # 2. Lire le fichier CSV dans un DataFrame en ignorant la colonne d'index si nécessaire
 csv_path = './X_test.csv'
@@ -15,6 +17,9 @@ df_api.index = df_api.index.astype(int)
 csv_path_base_client = './Base_client.csv'
 Base_client= pd.read_csv(csv_path_base_client, index_col='Unnamed: 0')
 Base_client.index = Base_client.index.astype(int)
+
+explainer = shap.TreeExplainer(loaded_model)
+shap_values = explainer.shap_values(df_api)
 
 # Instance API
 app = FastAPI()
@@ -50,6 +55,26 @@ def predict(ID_CLIENT) :
       return {'prediction': prediction}
    else:
       return 'Manquant'
+   
+@app.get("/SHAP_GLOBAL")
+def shap_global() :
+   # Faire le shap par classe
+   shap_values_class_1_global = shap_values_global[..., 1]
+   # Le téléchargement des shap c'est fait sur une base réduite pour la taille des données
+   # Possibilité d'intégrer une image à la place mais modification max_display impossible
+   
+   return shap_values_class_1_global, df_api, df_api.columns
+
+@app.get("/shap_individual")
+def shap_individual(ID_CLIENT) :
+   # Selection personne
+   observation = df_api.loc[[ID_CLIENT]]
+   # Shap_values individue
+   shap_values_ind = explainer.shap_values(observation)
+   # Select SHAP values for the first output 
+   shap_values_class_1_ind = shap_values_ind[..., 1] 
+
+   return shap_values_class_1_ind, observation, observation.columns
   
 if __name__ == "__main__":
    uvicorn.run("Prediction_api:app", host="127.0.0.1", port=8000, reload=True)
