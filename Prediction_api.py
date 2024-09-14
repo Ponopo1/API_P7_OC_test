@@ -3,6 +3,7 @@ from fastapi import FastAPI
 import pandas as pd
 import joblib
 import shap
+from fastapi.encoders import jsonable_encoder
 
 # Import model 
 loaded_model = joblib.load('./best_Random Forest_2024-07-26.joblib')
@@ -56,19 +57,28 @@ def predict(ID_CLIENT) :
       return 'Manquant'
    
 @app.get("/SHAP_GLOBAL")
-def shap_global() :
-   # Faire le shap par classe
-   shap_values_class_1_global = shap_values_global[..., 1]
-   shap_values_class_1_global_list = shap_values_class_1_global.tolist() # Conversion en liste JSON-compatible
-   df_api_dict = df_api.to_dict # Conversion du DataFrame en dict
-   df_api_list = df_api.columns.tolist()  # Conversion des colonnes en liste
-   # Le téléchargement des shap c'est fait sur une base réduite pour la taille des données
-   # Possibilité d'intégrer une image à la place mais modification max_display impossible
-   
-   return {
-        'shap_values_class_1_global': shap_values_class_1_global_list, 
-        'df_api': df_api_dict, 
-        'df_api_columns': df_api_list}
+def shap_global():
+    try:
+        # Ensure shap_values_global is defined and correct
+        shap_values_class_1_global = shap_values_global[..., 1]  # Check this is correct and iterable
+        # Convert SHAP values to a list (for JSON compatibility)
+        shap_values_class_1_global_list = shap_values_class_1_global.tolist()
+        # Convert DataFrame to dictionary (JSON-compatible)
+        df_api_dict = df_api.to_dict()  # Ensure this is called correctly
+        # Convert DataFrame columns to a list (JSON-compatible)
+        df_api_list = df_api.columns.tolist()
+        # Prepare response as JSON-compatible data
+        response_data = {
+            'shap_values_class_1_global': shap_values_class_1_global_list,
+            'df_api': df_api_dict,
+            'df_api_columns': df_api_list
+        }
+        # Use jsonable_encoder to ensure everything is JSON-compatible
+        return jsonable_encoder(response_data)
+
+    except Exception as e:
+        # Return an error message if something goes wrong
+        return {"error": str(e)}
 
 @app.get("/shap_individual")
 def shap_individual(ID_CLIENT :int) :
