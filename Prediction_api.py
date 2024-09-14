@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 import pandas as pd
+import numpy as np
 import joblib
 import shap
 from functools import lru_cache
@@ -62,16 +63,14 @@ def predict(ID_CLIENT) :
    
 @app.get("/SHAP_GLOBAL")
 def shap_global():
-    shap_values_class_1_global = load_shap_values()
-    shap_values_class_1_global_list = shap_values_class_1_global[..., 1].tolist()
-    df_api_dict = df_api.to_dict()
-    df_api_list = df_api.columns.tolist()
+   importances = loaded_model.feature_importances_
+   std = np.std([tree.feature_importances_ for tree in loaded_model.estimators_], axis=0)
+   df_api_columns = df_api.columns.tolist()
 
-    return {
-        'shap_values_class_1_global': shap_values_class_1_global_list,
-        'df_api': df_api_dict,
-        'df_api_columns': df_api_list
-    }    
+   # Convertissez les importances en un dictionnaire
+   return {'features': df_api_columns,
+      'importances': importances.tolist(),
+      'std_dev': std.tolist()}   
 
 @app.get("/shap_individual")
 def shap_individual(ID_CLIENT :int) :
