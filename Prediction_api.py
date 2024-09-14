@@ -3,11 +3,15 @@ from fastapi import FastAPI
 import pandas as pd
 import joblib
 import shap
-from fastapi.encoders import jsonable_encoder
+from functools import lru_cache
 
 # Import model 
 loaded_model = joblib.load('./best_Random Forest_2024-07-26.joblib')
 shap_values_global = joblib.load('./SHAP/shap_values.joblib')
+
+@lru_cache(maxsize=1)
+def load_shap_values():
+    return joblib.load('./SHAP/shap_values.joblib')
 
 # 2. Lire le fichier CSV dans un DataFrame en ignorant la colonne d'index si nécessaire
 csv_path = './X_test.csv'
@@ -58,27 +62,16 @@ def predict(ID_CLIENT) :
    
 @app.get("/SHAP_GLOBAL")
 def shap_global():
-    try:
-        # Ensure shap_values_global is defined and correct
-        shap_values_class_1_global = shap_values_global[..., 1]  # Check this is correct and iterable
-        # Convert SHAP values to a list (for JSON compatibility)
-        shap_values_class_1_global_list = shap_values_class_1_global.tolist()
-        # Convert DataFrame to dictionary (JSON-compatible)
-        df_api_dict = df_api.to_dict()  # Ensure this is called correctly
-        # Convert DataFrame columns to a list (JSON-compatible)
-        df_api_list = df_api.columns.tolist()
-        # Prepare response as JSON-compatible data
-        response_data = {
-            'shap_values_class_1_global': shap_values_class_1_global_list,
-            'df_api': df_api_dict,
-            'df_api_columns': df_api_list
-        }
-        # Use jsonable_encoder to ensure everything is JSON-compatible
-        return jsonable_encoder(response_data)
+    shap_values_class_1_global = load_shap_values()
+    shap_values_class_1_global_list = shap_values_class_1_global[..., 1].tolist()
+    df_api_dict = df_api.to_dict()
+    df_api_list = df_api.columns.tolist()
 
-    except Exception as e:
-        # Return an error message if something goes wrong
-        return {"error": str(e)}
+    return {
+        'shap_values_class_1_global': shap_values_class_1_global_list,
+        'df_api': df_api_dict,
+        'df_api_columns': df_api_list
+    }    
 
 @app.get("/shap_individual")
 def shap_individual(ID_CLIENT :int) :
