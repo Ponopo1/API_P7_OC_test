@@ -50,7 +50,7 @@ def info_client_global():
     # Ajouter une colonne 'ID' basée sur l'index
     Base_client['ID'] = Base_client.index
     # Convertir en dictionnaire, avec l'index comme ID
-    INFO_CLIENT_global_dict = Base_client.to_dict(orient="records")
+    INFO_CLIENT_global_dict = Base_client.to_dict
     
     return INFO_CLIENT_global_dict
 
