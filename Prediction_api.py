@@ -45,6 +45,18 @@ def info_client(ID_CLIENT: int):
    INFO_CLIENT_dict = INFO_CLIENT.to_dict()
    return INFO_CLIENT_dict
 
+@app.get("/INFO_CLIENTS_GLOBAL")
+def info_client_global():
+    # Ajouter une colonne 'ID' basée sur l'index
+    Base_client['ID'] = Base_client.index
+    # Convertir en dictionnaire, avec l'index comme ID
+    INFO_CLIENT_global_dict = Base_client.to_dict(orient="records")
+    
+    return INFO_CLIENT_global_dict
+
+info_client_global()
+
+
 @app.get("/predict")
 def predict(ID_CLIENT) :
    ID_CLIENT = int(ID_CLIENT)
@@ -87,6 +99,6 @@ def shap_individual(ID_CLIENT :int) :
         "shap_values_class_1": shap_values_class_1_ind_list,
         "observation": observation_dict,
         "columns": observation_list}
-  
+
 if __name__ == "__main__":
    uvicorn.run("Prediction_api:app", host="127.0.0.1", port=8000, reload=True)
