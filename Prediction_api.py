@@ -47,12 +47,14 @@ def info_client(ID_CLIENT: int):
 
 @app.post("/INFO_CLIENTS_GLOBAL")
 def info_client_global():
+   # Sélectionner uniquement les colonnes numériques pour diminuer le temps de réponse
+    base_client_numeric = Base_client.select_dtypes(include=['number']).copy()
     # Ajouter une colonne 'ID' basée sur l'index
-    Base_client['ID'] = Base_client.index
-    # Convertir en dictionnaire, avec l'index comme ID
-    INFO_CLIENT_global_dict = Base_client.to_dict(orient="records")
+    base_client_numeric['ID'] = Base_client.index
+    # Convertir en dictionnaire
+    info_client_global_dict = base_client_numeric.to_dict(orient="records")
     
-    return INFO_CLIENT_global_dict
+    return info_client_global_dict
 
 
 @app.get("/predict")
