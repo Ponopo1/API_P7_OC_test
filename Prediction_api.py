@@ -52,9 +52,11 @@ def info_client_global():
     # Ajouter une colonne 'ID' basée sur l'index
     base_client_numeric['ID'] = Base_client.index
     # Calcul proba
-    df_api['proba'] = loaded_model.predict_proba(df_api)[:,1]
+    df_proba = pd.DataFrame({
+    'ID': df_api.index,  # Utiliser l'index de df_api comme ID
+    'proba': loaded_model.predict_proba(df_api)[:,1]})
     # intégration de la proba 
-    base_client_numeric_prob = base_client_numeric.join(df_api[['proba']], how='inner')
+    base_client_numeric_prob = base_client_numeric.merge(df_proba[['proba']], left_index =True, right_on='ID',how='inner')
     # Convertir en dictionnaire
     info_client_global_dict = base_client_numeric_prob.to_dict(orient="records")
     
