@@ -88,8 +88,8 @@ def predict_from_id_client(id_client) :
 def predict(id_client) :
    prediction = predict_from_id_client(id_client) 
    if prediction is not None : 
-      return {'prediction' : prediction,
-              "ID_CLIENT": id_client}
+      return {'ID_CLIENT': id_client,
+              'prediction' : prediction}
    else :
       return 'Manquant'
    
