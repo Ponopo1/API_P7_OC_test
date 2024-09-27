@@ -28,15 +28,17 @@ explainer = shap.TreeExplainer(loaded_model)
 
 # Instance API
 app = FastAPI()
-@app.get("/acceuil")
-def great():
-   return {"message":"Bonjour"}
+
+def liste_client_df_api() :
+   # Renvoie tous les ID_CLIENT disponibles dans le DataFrame
+    ID_CLIENT = sorted(df_api.index.tolist())
+    return ID_CLIENT
 
 # Endpoint pour récupérer les ID_CLIENT
 @app.get("/CLIENTS")
 def Liste_client():
     # Renvoie tous les ID_CLIENT disponibles dans le DataFrame
-    ID_CLIENT = sorted(df_api.index.tolist())
+    ID_CLIENT = liste_client_df_api()
     return {"ID_CLIENT": ID_CLIENT}
 
 @app.get("/INFO_CLIENTS")
