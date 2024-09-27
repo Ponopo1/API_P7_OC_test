@@ -41,11 +41,15 @@ def Liste_client():
     ID_CLIENT = liste_client_df_api()
     return {"ID_CLIENT": ID_CLIENT}
 
-@app.get("/INFO_CLIENTS")
-def info_client(ID_CLIENT: int):
+def liste_client_base_client(ID_CLIENT) :
    INFO_CLIENT = Base_client.loc[[ID_CLIENT]]
    INFO_CLIENT_dict = INFO_CLIENT.to_dict()
    return INFO_CLIENT_dict
+
+@app.get("/INFO_CLIENTS")
+def info_client(ID_CLIENT: int):
+   INFO_CLIENT = liste_client_base_client(ID_CLIENT)
+   return INFO_CLIENT
 
 @app.post("/INFO_CLIENTS_GLOBAL")
 def info_client_global():
