@@ -19,10 +19,12 @@ csv_path = './X_test.csv'
 df_api= pd.read_csv(csv_path, index_col="ID_CLIENT")
 df_api.index = df_api.index.astype(int)
 
-# Base_client import
-csv_path_base_client = './Base_client.csv'
-Base_client= pd.read_csv(csv_path_base_client, index_col='Unnamed: 0')
-Base_client.index = Base_client.index.astype(int)
+def chargment_base_client():
+   # Base_client import
+   csv_path_base_client = './Base_client.csv'
+   Base_client= pd.read_csv(csv_path_base_client, index_col='Unnamed: 0')
+   Base_client.index = Base_client.index.astype(int)
+   return Base_client
 
 explainer = shap.TreeExplainer(loaded_model)
 
@@ -41,16 +43,16 @@ def Liste_client():
 
 @app.get("/INFO_CLIENTS")
 def info_client(ID_CLIENT: int):
-   INFO_CLIENT = Base_client.loc[[ID_CLIENT]]
+   INFO_CLIENT = chargment_base_client.loc[[ID_CLIENT]]
    INFO_CLIENT_dict = INFO_CLIENT.to_dict()
    return INFO_CLIENT_dict
 
 @app.post("/INFO_CLIENTS_GLOBAL")
 def info_client_global():
    # Sélectionner uniquement les colonnes numériques pour diminuer le temps de réponse
-    base_client_numeric = Base_client.select_dtypes(include=['number']).copy()
+    base_client_numeric = chargment_base_client.select_dtypes(include=['number']).copy()
     # Ajouter une colonne 'ID' basée sur l'index
-    base_client_numeric['ID'] = Base_client.index
+    base_client_numeric['ID'] = chargment_base_client.index
     # Calcul proba
     df_proba = pd.DataFrame({
    'ID': df_api.index,  # Utiliser l'index de df_api comme ID
@@ -63,22 +65,29 @@ def info_client_global():
     
     return info_client_global_dict
 
-
-@app.get("/predict")
-def predict(ID_CLIENT) :
-   ID_CLIENT = int(ID_CLIENT)
+# Définition pour le test
+def predict_from_id_client(id_client) :
+   id_client = int(id_client)
    # Vérifier si l'ID_CLIENT existe dans le DataFrame
-   if ID_CLIENT in df_api.index:
+   if id_client in df_api.index:
       # Extraire les données du client
-      client_data = df_api.loc[ID_CLIENT].values.reshape(1, -1)
+      client_data = df_api.loc[id_client].values.reshape(1, -1)
       
       # Tester le modèle sur ce ID_CLIENT
       prediction = loaded_model.predict_proba(client_data)
       prediction = prediction[0][1]
       # Afficher la prédiction
-      return {'prediction': prediction}
+      return prediction
    else:
+      return None
+@app.get("/predict")
+def predict(id_client) :
+   prediction = predict_from_id_client(id_client) 
+   if prediction is not None : 
+      return {'prediction' : prediction}
+   else :
       return 'Manquant'
+   
    
 @app.get("/SHAP_GLOBAL")
 def shap_global():
