@@ -19,12 +19,10 @@ csv_path = './X_test.csv'
 df_api= pd.read_csv(csv_path, index_col="ID_CLIENT")
 df_api.index = df_api.index.astype(int)
 
-def chargment_base_client():
-   # Base_client import
-   csv_path_base_client = './Base_client.csv'
-   Base_client= pd.read_csv(csv_path_base_client, index_col='Unnamed: 0')
-   Base_client.index = Base_client.index.astype(int)
-   return Base_client
+# Base_client import
+csv_path_base_client = './Base_client.csv'
+Base_client= pd.read_csv(csv_path_base_client, index_col='Unnamed: 0')
+Base_client.index = Base_client.index.astype(int)
 
 explainer = shap.TreeExplainer(loaded_model)
 
@@ -43,16 +41,16 @@ def Liste_client():
 
 @app.get("/INFO_CLIENTS")
 def info_client(ID_CLIENT: int):
-   INFO_CLIENT = chargment_base_client.loc[[ID_CLIENT]]
+   INFO_CLIENT = Base_client.loc[[ID_CLIENT]]
    INFO_CLIENT_dict = INFO_CLIENT.to_dict()
    return INFO_CLIENT_dict
 
 @app.post("/INFO_CLIENTS_GLOBAL")
 def info_client_global():
    # Sélectionner uniquement les colonnes numériques pour diminuer le temps de réponse
-    base_client_numeric = chargment_base_client.select_dtypes(include=['number']).copy()
+    base_client_numeric = Base_client.select_dtypes(include=['number']).copy()
     # Ajouter une colonne 'ID' basée sur l'index
-    base_client_numeric['ID'] = chargment_base_client.index
+    base_client_numeric['ID'] = Base_client.index
     # Calcul proba
     df_proba = pd.DataFrame({
    'ID': df_api.index,  # Utiliser l'index de df_api comme ID
