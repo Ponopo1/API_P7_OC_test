@@ -34,7 +34,7 @@ class TestApi(unittest.TestCase):
         # Then
         expected_result = 0.289
         assert expected_result-computed_result < 0.001
-        print(f"Le resultat détail pour {existent_id_client} est bon") 
+        print(f"Le resultat prédict pour {existent_id_client} est bon") 
     
     # Test de nos données générales
     def test_info_client_when_id_does_not_exist(self):
