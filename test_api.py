@@ -2,73 +2,73 @@ import unittest
 import requests
 import joblib
 import pandas as pd
+from Prediction_api import predict_from_id_client, liste_client_df_api,liste_client_base_client
 
 class TestApi(unittest.TestCase):
     
-    # Test pour vérifier que le modèle est bien chargé
-    def test_model_loading(self):
-        model_path = './best_Random Forest_2024-07-26.joblib'
-        try:
-            loaded_model = joblib.load(model_path)
-            self.assertIsNotNone(loaded_model, "Le modèle n'a pas été chargé correctement.")
-            print(f"Le modèle a bien été chargé.")
-        except FileNotFoundError:
-            self.fail(f"Le fichier du modèle {model_path} est introuvable.")
-
-
-    # Test pour vérifier que les valeurs SHAP sont bien chargées
-    def test_shap_loading(self):
-        shap_path = './SHAP/shap_values.joblib'
-        try:
-            shap_values_global = joblib.load(shap_path)
-            self.assertIsNotNone(shap_values_global, "Les valeurs SHAP n'ont pas été chargées correctement.")
-            print(f"Les valeurs SHAP ont bien été chargées")
-        except FileNotFoundError:
-            self.fail(f"Le fichier SHAP {shap_path} est introuvable.")
-
-    # Test pour vérifier le chargement de la base de données X_test
-    def test_loading_X_test(self):
-        csv_path = './X_test.csv'
-        try:
-            df_api = pd.read_csv(csv_path, index_col="ID_CLIENT")
-            df_api.index = df_api.index.astype(int)
-            self.assertFalse(df_api.empty, "Le DataFrame X_test est vide.")
-            print(f"Le fichier X_test a été correctement chargé")
-        except FileNotFoundError:
-            self.fail(f"Le fichier X_test {csv_path} est introuvable.")
-
-    
-    # Test pour vérifier le chargement de la base de données Base_client
-    def test_loading_Base_client(self):
-        csv_path_base_client = './Base_client.csv'
-        try:
-            Base_client = pd.read_csv(csv_path_base_client, index_col='Unnamed: 0')
-            Base_client.index = Base_client.index.astype(int)
-            self.assertFalse(Base_client.empty, "Le DataFrame Base_client est vide.")
-            print(f"Le fichier Base_client a été correctement chargé") 
-        except FileNotFoundError:
-            self.fail(f"Le fichier base_client est introuvable.") # Ne pas donner l'adresse de ce document
+    # Test pour vérifier le chargement de la base de données x_test (df_api)
+    def test_liste_client_df_api(self):
+        # Given
+        client_list = liste_client_df_api()
+        # When
+        computed_result = len(set(client_list))
+        # Then 
+        assert computed_result == 2332 # Nb à changer si changement de données
+        print('Nous avons chargé le bon fichier X_test')
 
     # Test pour vérifier si le prédict fonctionne bien
-    def test_get_predict_client(self):
-        try :
-            # Load model
-            model_path = './best_Random Forest_2024-07-26.joblib'
-            loaded_model = joblib.load(model_path)
-            # Load client data
-            csv_path = './X_test.csv'
-            df_api = pd.read_csv(csv_path, index_col="ID_CLIENT")
-            df_api.index = df_api.index.astype(int)
-            # Predict sur le premier
-            client_data = df_api.iloc[[0]]
-            prediction = loaded_model.predict_proba(client_data)
-            self.assertIsNotNone(prediction, "La prédiction ne fonctionne pas correctement.")
-            print(f"La prédiction fonctionne.")
-        except FileNotFoundError:
-            self.fail(f"La prédiction n'a pas chargé correctement")
-        
+    def test_predict_from_id_client_when_id_client_does_not_exist(self):
+        # Given 
+        non_existent_id_client = 10000000000
+        # When        
+        computed_result = predict_from_id_client(non_existent_id_client)
+        # Then
+        assert computed_result is None
+        print('Le faux client n\'existe pas')
 
-
+    def test_predict_from_id_client_when_id_client_does_exist(self):
+        # Given 
+        existent_id_client = 49386
+        # When        
+        computed_result = predict_from_id_client(existent_id_client)
+        # Then
+        expected_result = 0.289
+        assert expected_result-computed_result < 0.001
+        print(f"Le resultat détail pour {existent_id_client} est bon") 
+    
+    # Test de nos données générales
+    def test_info_client_when_id_does_not_exist(self):
+        # Given 
+        non_existent_id_client = 10000000000
+        # When        
+        computed_result = liste_client_base_client(non_existent_id_client)
+        # Then
+        assert computed_result is None
+        print('Pas de fausse donnée chargée')
+    
+    def test_info_client_when_id_does_not_exist(self):
+        # Given 
+        existent_id_client = 49386
+        # When        
+        computed_result = liste_client_base_client(existent_id_client)
+        # Then
+        expected_result = {
+            'AMT_CREDIT': {49386: 450000.0},
+            'AMT_ANNUITY': {49386: 20979.0},
+            'AMT_GOODS_PRICE': {49386: 450000.0},
+            'DAYS_BIRTH': {49386: -14351},
+            'CNT_CHILDREN': {49386: 0},
+            'DAYS_EMPLOYED': {49386: -4551.0},
+            'NAME_EDUCATION_TYPE': {49386: 'Incomplete higher'},
+            'NAME_CONTRACT_TYPE': {49386: 'Cash loans'},
+            'NAME_FAMILY_STATUS': {49386: 'Married'},
+            'NAME_HOUSING_TYPE': {49386: 'House / apartment'},
+            'NAME_INCOME_TYPE': {49386: 'Working'},
+            'CODE_GENDER': {49386: 'F'}
+        }
+        self.assertEqual(computed_result, expected_result)
+        print(f"Le resultat général pour {existent_id_client} est correct")
+ 
 if __name__ == '__main__':
     unittest.main()
 
